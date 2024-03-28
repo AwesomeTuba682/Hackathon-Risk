@@ -3,7 +3,7 @@ from Tile import *
 from Player import *
 
 class Board:
-    default_board = np.zeros((5, 5))
+    default_board = Board(5, 5)
 
     def __init__(self, n, m):
         self.n = n
@@ -45,7 +45,7 @@ class Board:
 
         if from_tile.owner != to_tile.owner:
             # moving units to a non-friendly tile
-            return "this tile doesn't belong to you   "
+            return "this tile doesn't belong to you"
 
         # if to_tile not in from_tile.neighbors:
         #     # moving units to a tile that
