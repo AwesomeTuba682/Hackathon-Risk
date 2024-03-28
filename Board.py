@@ -2,14 +2,6 @@ import numpy as np
 from Tile import *
 from Player import *
 
-
-
-
-
-
-
-
-
 class Board:
     default_board = np.zeros((5, 5))
 
@@ -38,11 +30,11 @@ class Board:
         if tile.owner != player.id:
             return "this is not your tile"
 
-        if troops_to_place > player.available_units:
+        if troops_to_place > player.available_troops:
             return "you don't have enough units"
 
         tile.power += troops_to_place
-        player.available_units -= troops_to_place
+        player.available_troops -= troops_to_place
         return True
 
     def move(self, mover: Player, from_tile, to_tile, troops_to_transfer):
