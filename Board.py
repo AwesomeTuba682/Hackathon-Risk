@@ -2,6 +2,14 @@ import numpy as np
 from Tile import *
 from Player import *
 
+
+
+
+
+
+
+
+
 class Board:
     default_board = np.zeros((5, 5))
 
