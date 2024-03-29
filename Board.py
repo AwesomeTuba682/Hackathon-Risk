@@ -1,15 +1,13 @@
-import numpy as np
 from Tile import *
 from Player import *
 
 class Board:
-    default_board = np.zeros((5, 5))
-
     def __init__(self, n, m):
         self.n = n
         self.m = m
-        self.board = [[Tile("", 0, 0) for j in range(m)] for i in range(n)]
+        self.board = [[Tile("", 0, -1) for j in range(m)] for i in range(n)]
         self.calc_neighbors()
+
 
     def get(self, i, j):
         return self.board[i][j]
@@ -27,14 +25,15 @@ class Board:
                 self.board[i][j].neighbors.append(self.board[i][(j - 1) % self.m])
 
     def place(self, player, tile, troops_to_place):
-        if tile.owner != player.id:
-            return "this is not your tile"
+        if tile.owner != player.id and tile.owner != -1:
+            return "this is not your tile or an empty tile"
 
         if troops_to_place > player.available_troops:
             return "you don't have enough units"
 
         tile.power += troops_to_place
         player.available_troops -= troops_to_place
+        tile.owner = player.id
         return True
 
     def move(self, mover: Player, from_tile, to_tile, troops_to_transfer):
