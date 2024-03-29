@@ -1,5 +1,7 @@
 import socket
 import threading
+import json
+import time
 from Board import *
 from Player import *
 
@@ -12,7 +14,7 @@ class Server:
         self.players = []
         self.current_turn = 0
         self.first_turn = True
-        self.board = Board(5,5)
+        self.board = Board()
         self.start_server()
 
 
@@ -27,6 +29,9 @@ class Server:
             client_socket, client_address = self.server_socket.accept()
             print(f"Connection from {client_address}")
             self.clients.append(client_socket)
+            client_id = len(self.clients)-1
+            matrix_json = json.dumps(self.board.get_dict())
+            self.send_client_message(client_id, "your_id_is " + str(client_id) + " " + matrix_json)
             player = Player(len(self.clients)-1, 10)
             self.players.append(player)
             client_thread = threading.Thread(target=self.handle_client, args=(client_socket,))
@@ -50,7 +55,6 @@ class Server:
     def process_message(self, client_id, message):
         if client_id == self.current_turn:
             self.send_client_message(client_id, self.handle_logic(client_id, message))
-            print(self.board)
 
         else:
             self.send_client_message(client_id, "Not your turn")
@@ -68,22 +72,21 @@ class Server:
         match split_msg[0].lower():
 
             case "place":
-                if len(split_msg) != 4: # check ints
+                if len(split_msg) != 4:
                     return "Check function inputs"
 
                 tile = self.board.get(split_msg[1], split_msg[2])
                 msg = self.board.place(player, tile, split_msg[3])
                 if msg != True:
                     return msg
-
+                self.update_board()
                 if self.first_turn:
                     self.switch_turn()
                     self.send_client_message(client_id, "Your turn is over!")
-
                 return "place complete"
 
             case "move":
-                if len(split_msg) != 6: # check ints
+                if len(split_msg) != 6:
                     return "Check function inputs"
 
                 from_tile = self.board.get(split_msg[1], split_msg[2])
@@ -94,10 +97,11 @@ class Server:
 
                 self.switch_turn()
                 self.send_client_message(client_id, "Your turn is over!")
+                self.update_board()
                 return "move complete"
 
             case "capture":
-                if len(split_msg) != 6: # check ints
+                if len(split_msg) != 6:
                     return "Check function inputs"
 
                 attacking_tile = self.board.get(split_msg[1], split_msg[2])
@@ -106,16 +110,22 @@ class Server:
                 if msg != True:
                     return msg
 
+                self.update_board()
+
                 return "capture complete"
 
             case "end":
+                self.update_board()
                 self.switch_turn()
                 self.send_client_message(client_id, "Your turn is over!")
 
         return "Function not found"
 
 
-
+    def update_board(self):
+        matrix_json = json.dumps(self.board.get_dict())
+        for i in range(len(self.clients)):
+            self.send_client_message(i, "matrix_json " + matrix_json)
     def switch_turn(self):
         self.current_turn = (self.current_turn + 1) % len(self.clients)
         if self.current_turn == 0:
@@ -126,8 +136,10 @@ class Server:
             for i in range(self.board.n):
                 for j in range(self.board.m):
                     tile_worth = 1
+
                     owner_id = self.board.get(i, j).owner
-                    self.players[owner_id].available_troops += tile_worth
+                    if owner_id > -1:
+                        self.players[owner_id].available_troops += tile_worth
 
 
 
@@ -149,6 +161,8 @@ def check_for_ints(arr):
         if not isinstance(number, int):
             return False
     return True
+
+
 
 
 server = Server('0.0.0.0', 5555)

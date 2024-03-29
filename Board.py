@@ -81,7 +81,7 @@ class Board:
         greenland.neighbors = [united_states, canada, europe]
         canada.neighbors = [alaska, united_states, greenland]
         alaska.neighbors = [eastern_russia, united_states, canada]
-        united_states = [canada, alaska, greenland, northern_south_america]
+        united_states.neighbors = [canada, alaska, greenland, northern_south_america]
         northern_south_america.neighbors = [north_africa, united_states, argentina]
         argentina.neighbors = [northern_south_america]
 
@@ -119,6 +119,13 @@ class Board:
         }
 
         self.board = [[num_to_region[self.get(i, j)] for j in range(self.m)]for i in range(self.n)]
+        self.tiles = [empty_tile, china, canada, greenland, united_states, alaska, northern_south_america, argentina, europe, western_russia, eastern_russia, north_africa, central_africa, indonesia, australia, south_africa, middle_east]
+
+    def get_dict(self):
+        tile_dict = {"tiles": []}
+        for tile in self.tiles:
+            tile_dict["tiles"].append({"owner": tile.owner, "power": tile.power})
+        return tile_dict
 
     def get(self, i, j):
         return self.board[i][j]
@@ -212,3 +219,4 @@ class Board:
             str += '\n'
 
         return str
+
