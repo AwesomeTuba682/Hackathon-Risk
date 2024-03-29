@@ -2,7 +2,28 @@ import pygame
 import sys
 from Board import *
 
+
 class BoardVisualizer:
+    colors = {
+        0: (0, 0, 0),  # black
+        1: (255, 255, 255),  # white
+        2: (255, 0, 0),  # red
+        3: (0, 255, 0),  # green
+        4: (0, 0, 255),  # blue
+        5: (255, 255, 0),  # yellow
+        6: (255, 0, 255),  # magenta
+        7: (0, 255, 255),  # cyan
+        8: (125, 0, 0),  # dark red
+        9: (0, 125, 0),  # dark green
+        10: (0, 0, 125),  # dark blue
+        11: (125, 125, 0),  # dark yellow
+        12: (125, 0, 125),  # dark purple
+        13: (0, 125, 125),  # dark cyan
+        14: (139, 69, 19),  # brown
+        15: (255, 192, 203),  # pink
+        16: (255, 165, 0)  # orange
+    }
+
     def __init__(self, board: Board):
         self.board = board
         self.cell_size = 100
@@ -16,7 +37,7 @@ class BoardVisualizer:
             for i in range(self.board.m):
                 # colored rectangles
                 rect = pygame.Rect(i * self.cell_size, j * self.cell_size, self.cell_size, self.cell_size)
-                pygame.draw.rect(self.screen, self.colors[self.board.get(j, i).owner], rect, 0)
+                pygame.draw.rect(self.screen, (125, 125, 125), rect, 0)
 
                 # white grid
                 rect = pygame.Rect(i * self.cell_size, j * self.cell_size, self.cell_size, self.cell_size)
@@ -26,17 +47,3 @@ class BoardVisualizer:
                 font = pygame.font.SysFont('arial', 50)
                 text = font.render(f"{self.board.get(j, i).power}", True, (0, 0, 0))
                 self.screen.blit(text, (i * self.cell_size, j * self.cell_size))
-
-
-if __name__ == "__main__":
-    board = Board(6, 10)
-    board.set(5, 9, Tile("lol", 10, 2))
-    visualizer = BoardVisualizer(board)
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        visualizer.draw_board()
-        pygame.display.update()
