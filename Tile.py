@@ -1,5 +1,3 @@
-import numpy as np
-
 class Tile:
     def __init__(self, name, power, owner):
         self.name = name
